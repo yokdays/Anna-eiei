@@ -20,21 +20,23 @@ if (isset($_POST['update_cart'])){
     $success_msg[] = 'cart quantity update successfully';
 }
 //delete item
-if (isset($_POST['delete item'])) {
+if(isset($_POST['delete_item'])){
+
     $cart_id = $_POST['cart_id'];
-    $cart_id = filter_var($cart_id, FILTER_SANITIZE_NUMBER_INT);
-
-    $varify_delete_items = $conn->prepare("SELECT * FROM 'cart' WHERE id=?");
-    $varify_delete_items->execute([$wishlist_id]);
-
-    if ($varify_delete_items->rowCount()>0) {
-        $delete_cart_id = $conn->prepare("DELETE FROM 'cart' WHERE id =?");
-        $delete_cart_id->execute([$user_id]);
-        $success_msg[] = "cart item delete successfully";
+    $cart_id = filter_var($cart_id);
+    
+    $verify_delete_item = $conn->prepare("SELECT * FROM `cart` WHERE id = ?");
+    $verify_delete_item->execute([$cart_id]);
+ 
+    if($verify_delete_item->rowCount() > 0){
+       $delete_cart_id = $conn->prepare("DELETE FROM `cart` WHERE id = ?");
+       $delete_cart_id->execute([$cart_id]);
+       $success_msg[] = 'Cart item deleted!';
     }else{
-        $warning_msg[] = 'cart item already deleted';
-    }
-}
+       $warning_msg[] = 'Cart item already deleted!';
+    } 
+ 
+ }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -72,7 +74,7 @@ if (isset($_POST['delete item'])) {
                     <h3 class="name"><?=$fetch_products['name'];?> </h3>
                     <div class="flex">
                         <p class="price">price $<?=$fetch_products['price'];?>/-</p>
-                        <input type="number" name="qty" required min="1" value="<?= $fetch_cart?>" max="99" maxlength="2" class="qty">
+                        <input type="number" name="qty" min="1" value="<?= $fetch_cart?>" max="99" maxlength="2" class="qty">
                         <button type="submit" name="update_cart" class="bx bxs-edit"></button>
                     </div>
                     <p class="sub-total">sub total : <span>$<?=$sup_total = ($fetch_cart['qty'] * $fetch_cart['price']) ?></span></p>

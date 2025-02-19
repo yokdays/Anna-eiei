@@ -2,6 +2,7 @@
 session_start();
 require_once 'config/db.php';
 // Check if database connection is established
+$user_id = $_SESSION['user_login'];
 if (!$conn) {
     die("Database connection failed!");
 }
@@ -21,9 +22,9 @@ if (isset($_POST['add_to_cart'])) {
 
     if ($varify_cart->rowCount() > 0) {
         $warning_msg[] = 'product already exist in your wishlist';
-    }else if ($max_cart_item->rowCount() > 20) {
+    } else if ($max_cart_item->rowCount() > 20) {
         $warning_msg[] = 'cart is full';
-    }else{
+    } else {
         $select_price = $conn->prepare("SELECT * FROM 'products' WHERE id = ? LIMIT 1");
         $select_price->execute([$product_id]);
         $fetch_price = $select_price->fetch(PDO::FETCH_ASSOC);
@@ -34,37 +35,41 @@ if (isset($_POST['add_to_cart'])) {
     }
 }
 //delete item
-if (isset($_POST['delete item'])) {
+if (isset($_POST['delete_item'])) {
     $warning_id = $_POST['wishlist_id'];
-    $warning_id = filter_var($wishlist_id, FILTER_SANITIZE_NUMBER_INT);
+    $warning_id = filter_var($warning_id);
 
     $varify_delete_items = $conn->prepare("SELECT * FROM `wishlist` WHERE id=?");
-    $varify_delete_items->execute([$wishlist_id]);
+    $varify_delete_items->execute([$warning_id]);
 
-    if ($varify_delete_items->rowCount()>0) {
+    if ($varify_delete_items->rowCount() > 0) {
         $delete_wishlist_id = $conn->prepare("DELETE FROM `wishlist` WHERE id =?");
         $delete_wishlist_id->execute([$warning_id]);
         $success_msg[] = "wishlist item delete successfully";
-    }else{
+    } else {
         $warning_msg[] = 'wishlist item already deleted';
     }
 }
-//empty_cart
-if (isset($_POST['empty_cart'])) {
-    $varify_empty_item = $conn->prepare("SELECT * FROM `cart` WHERE user_id=?");
-    $varify_empty_item->execute([$user_id]);
 
-    if ($varify_empty_item->rowCount()) {
-        $delete_wishlist_id = $conn->prepare("DELETE FROM `wishlist` WHERE id =?");
-        $delete_wishlist_id->execute([$warning_id]);
-        $success_msg[] = "wishlist item delete successfully";
-    }else{
-        $warning_msg[] = 'wishlist item already deleted';
+
+//empty_cart
+if (isset($_POST['empty_wishlist'])) {
+
+    $verify_empty_cart = $conn->prepare("SELECT * FROM `wishlist` WHERE user_id = ?");
+    $verify_empty_cart->execute([$user_id]);
+
+    if ($verify_empty_cart->rowCount() > 0) {
+        $delete_cart_id = $conn->prepare("DELETE FROM `wishlist` WHERE user_id = ?");
+        $delete_cart_id->execute([$user_id]);
+        $success_msg[] = 'wishlist emptied!';
+    } else {
+        $warning_msg[] = 'wishlist already emptied!';
     }
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -72,6 +77,7 @@ if (isset($_POST['empty_cart'])) {
     <link rel="stylesheet" href="style.css">
     <title>wishlish Products</title>
 </head>
+
 <body>
     <?php include 'header.php'; ?>
     <div class="main">
@@ -85,55 +91,56 @@ if (isset($_POST['empty_cart'])) {
                 $grand_total = 0;
                 $select_wishlist = $conn->prepare("SELECT * FROM `wishlist` WHERE user_id = ?");
                 $select_wishlist->execute([$user_id]);
-                if ($select_wishlist->rowCount()>0){
-                    while($fetch_wishlist = $select_wishlist->fetch(PDO::FETCH_ASSOC)){
+                if ($select_wishlist->rowCount() > 0) {
+                    while ($fetch_wishlist = $select_wishlist->fetch(PDO::FETCH_ASSOC)) {
                         $select_products = $conn->prepare("SELECT * FROM `products` WHERE id=?");
                         $select_products->execute([$fetch_wishlist['product_id']]);
-                        if ($select_products->rowCount()>0){
+                        if ($select_products->rowCount() > 0) {
                             $fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)
 
                 ?>
-                <form method="post" action="" class="box">
-                    <input type="hidden" name="wishlist_id" value="<?=$fetch_wishlist['id'];?>">
-                    <img src="image/<?=$fetch_products['image'];?>">
-                    <div class="button">
-                        <button type="submit" name="add_to_cart"><i class="bx bx-cart"></i></button>
-                        <a href="view_page.php?pid=<?= $fetch_products['id']; ?>" class="bx bxs-show"></a>
-                        <button type="submit" name="delete_item" onclick="return confirm('delete this item');"><i class="bx bx-x"></i></button>
-                    </div>
-                    <h3 class="name"><?=$fetch_products['name'];?></h3>
-                    <input type="hidden" name="product_id" value="<?=$fetch_products['name'];?>">
-                    <div class="flex">
-                        <p class="price">price $<?=$fetch_products['name'];?></p>
-                    </div>
-                    <a href="checkout.php?get_id=<?= $fetch_products['id']; ?>" class="btn">Buy Now</a>
-                </form>
+                            <form method="post" action="" class="box">
+                                <input type="hidden" name="wishlist_id" value="<?= $fetch_wishlist['id']; ?>">
+                                <img src="image/<?= $fetch_products['image']; ?>">
+                                <div class="button">
+                                    <button type="submit" name="add_to_cart"><i class="bx bx-cart"></i></button>
+                                    <a href="view_page.php?pid=<?= $fetch_products['id']; ?>" class="bx bxs-show"></a>
+                                    <button type="submit" name="delete_item" onclick="return confirm('delete this item');"><i class="bx bx-x"></i></button>
+                                </div>
+                                <h3 class="name"><?= $fetch_products['name']; ?></h3>
+                                <input type="hidden" name="product_id" value="<?= $fetch_products['name']; ?>">
+                                <div class="flex">
+                                    <p class="price">price $<?= $fetch_products['name']; ?></p>
+                                </div>
+                                <a href="checkout.php?get_id=<?= $fetch_products['id']; ?>" class="btn">Buy Now</a>
+                            </form>
                 <?php
-                            $grand_total+=$fetch_wishlist['price'];
-                            }
+                            $grand_total += $fetch_wishlist['price'];
                         }
-                    }else{
-                        echo '<p class="empty">No products added yet!</p>';
                     }
+                } else {
+                    echo '<p class="empty">No products added yet!</p>';
+                }
                 ?>
             </div>
             <?php
-                if ($grand_total !=0) {
+            if ($grand_total != 0) {
             ?>
-            <div class="cart-total">
-                <p>total amount payable : <span>$ <?= $grand_total; ?>/-</span></p>
-                <div class="button">
-                    <form method="post">
-                        <button type="submit" name="empty_cart" class="btn" onclick="return confirm('are you sure to empty your cart')">empty cart</button>
-                    </form>
-                    <a href="checkout.php" class="btn">proceed to checkout</a>
+                <div class="cart-total">
+                    <p>total amount payable : <span>$ <?= $grand_total; ?>/-</span></p>
+                    <div class="button">
+                        <form method="post">
+                            <button type="submit" name="empty_wishlist" class="btn" onclick="return confirm('are you sure to empty your wishlist')">empty cart</button>
+                        </form>
+                        <a href="checkout.php" class="btn">proceed to checkout</a>
+                    </div>
                 </div>
-            </div>
             <?php } ?>
         </section>
-    <?php include 'footer.php'; ?>
+        <?php include 'footer.php'; ?>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
     <script src="script.js" defer></script>
 </body>
+
 </html>
