@@ -9,7 +9,15 @@ include 'config/db.php';
     $sql = $conn->prepare("SELECT * FROM users WHERE id = :user_id LIMIT 1");
     $sql->bindParam(":user_id", $user_id);
     $sql->execute();
-    $row = $sql->fetch(PDO::FETCH_ASSOC)
+    $row = $sql->fetch(PDO::FETCH_ASSOC);
+
+    $select_cart = $conn->prepare("SELECT * FROM `cart` WHERE user_id = ?");
+    $select_cart->execute([$user_id]);
+    $total_cart_items = $select_cart ->rowCount();
+
+    $select_wishlist = $conn->prepare("SELECT * FROM `wishlist` WHERE user_id = ?");
+    $select_wishlist->execute([$user_id]);
+    $total_wishlist_items = $select_wishlist ->rowCount();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -37,10 +45,10 @@ include 'config/db.php';
             <div class="icons">
                 <i class="bx bxs-user" id="user-btn"></i>
                 <a href="wishlist.php" class="cart-btn"><i class="bx bx-heart"></i><sup>
-                        <p class="nav-info">0</p>
+                        <p class="nav-info"><?= $total_wishlist_items; ?></p>
                     </sup></a>
                 <a href="cart.php" class="cart-btn"><i class="bx bx-cart-download"></i><sup>
-                        <p class="nav-info">0</p>
+                        <p class="nav-info"><?= $total_cart_items; ?></p>
                     </sup></a>
                 <i class="bx bx-list-plus" id="menu-btn" style="font-size: 2rem;"></i>
             </div>

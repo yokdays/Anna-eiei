@@ -38,11 +38,11 @@ if (isset($_POST['delete item'])) {
     $warning_id = $_POST['wishlist_id'];
     $warning_id = filter_var($wishlist_id, FILTER_SANITIZE_NUMBER_INT);
 
-    $varify_delete_items = $conn->prepare("SELECT * FROM `wishlist` WHERE id = ? ");
+    $varify_delete_items = $conn->prepare("SELECT * FROM `wishlist` WHERE id=?");
     $varify_delete_items->execute([$wishlist_id]);
 
     if ($varify_delete_items->rowCount()>0) {
-        $delete_wishlist_id = $conn->prepare("DELETE FROM `wishlist` WHERE id = ? ");
+        $delete_wishlist_id = $conn->prepare("DELETE FROM `wishlist` WHERE id =?");
         $delete_wishlist_id->execute([$warning_id]);
         $success_msg[] = "wishlist item delete successfully";
     }else{
@@ -51,11 +51,11 @@ if (isset($_POST['delete item'])) {
 }
 //empty_cart
 if (isset($_POST['empty_cart'])) {
-    $varify_empty_item = $conn->prepare("SELECT * FROM `cart` WHERE user_id = ?");
+    $varify_empty_item = $conn->prepare("SELECT * FROM `cart` WHERE user_id=?");
     $varify_empty_item->execute([$user_id]);
 
     if ($varify_empty_item->rowCount()) {
-        $delete_wishlist_id = $conn->prepare("DELETE FROM `wishlist` WHERE id = ?");
+        $delete_wishlist_id = $conn->prepare("DELETE FROM `wishlist` WHERE id =?");
         $delete_wishlist_id->execute([$warning_id]);
         $success_msg[] = "wishlist item delete successfully";
     }else{
@@ -87,7 +87,7 @@ if (isset($_POST['empty_cart'])) {
                 $select_wishlist->execute([$user_id]);
                 if ($select_wishlist->rowCount()>0){
                     while($fetch_wishlist = $select_wishlist->fetch(PDO::FETCH_ASSOC)){
-                        $select_products = $conn->prepare("SELECT * FROM `products` WHERE id = ?");
+                        $select_products = $conn->prepare("SELECT * FROM `products` WHERE id=?");
                         $select_products->execute([$fetch_wishlist['product_id']]);
                         if ($select_products->rowCount()>0){
                             $fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)
