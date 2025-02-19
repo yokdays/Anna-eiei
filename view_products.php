@@ -23,7 +23,7 @@ if (isset($_POST['add_to_wishlist'])) {
     }else if ($cart_num->rowCount() > 0) {
         $warning_msg[] = 'product already exist in your cart';
     }else{
-        $select_price = $conn->prepare("SELECT * FROM 'products' WHERE id = ? LIMIT 1");
+        $select_price = $conn->prepare("SELECT * FROM `products` WHERE id = ? LIMIT 1");
         $select_price->execute([$product_id]);
         $fetch_price = $select_price->fetch(PDO::FETCH_ASSOC);
 

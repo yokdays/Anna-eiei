@@ -1,11 +1,6 @@
 <?php
 session_start();
 require_once 'config/db.php';
-if (isset($_SESSION['user_id'])){
-    $user_id = $_SESSION['user_id'];
-}else{
-    $user_id = '';
-}
 // Check if database connection is established
 if (!$conn) {
     die("Database connection failed!");
@@ -88,11 +83,11 @@ if (isset($_POST['empty_cart'])) {
             <div class="box-container">
                 <?php
                 $grand_total = 0;
-                $select_wishlist = $conn->prepare("SELECT * FROM 'wishlist' WHERE user_id = ?");
+                $select_wishlist = $conn->prepare("SELECT * FROM `wishlist` WHERE user_id = ?");
                 $select_wishlist->execute([$user_id]);
                 if ($select_wishlist->rowCount()>0){
                     while($fetch_wishlist = $select_wishlist->fetch(PDO::FETCH_ASSOC)){
-                        $select_products = $conn->prepare("SELECT * FROM 'productd' WHERE id=?");
+                        $select_products = $conn->prepare("SELECT * FROM `products` WHERE id=?");
                         $select_products->execute([$fetch_wishlist['product_id']]);
                         if ($select_products->rowCount()>0){
                             $fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)
