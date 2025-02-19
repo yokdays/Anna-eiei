@@ -1,11 +1,7 @@
 <?php
 
 include 'config/db.php';
-if (isset($_COOKIE['user_id'])) {
-    $user_id = $_COOKIE['user_id'];
-} else {
-    setcookie('user_id');
-}
+
 ?>
 
 <?php

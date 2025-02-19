@@ -1,15 +1,13 @@
 <?php
 session_start();
 require_once 'config/db.php';
-if (isset($_SESSION['user_id'])){
-    $user_id = $_SESSION['user_id'];
-}else{
-    $user_id = '';
-}
+$user_id = $_SESSION['user_login'];
+
 // Check if database connection is established
 if (!$conn) {
     die("Database connection failed!");
 }
+
 if (isset($_POST['update_cart'])){
     $cart_id = $_POST['cart_id'];
     $cart_id = filter_var($cart_id, FILTER_SANITIZE_NUMBER_INT);
@@ -58,11 +56,11 @@ if (isset($_POST['delete item'])) {
             <div class="box-container">
             <?php
                 $grand_total = 0;
-                $select_cart = $conn->prepare("SELECT * FROM 'cart' WHERE user_id = ?");
+                $select_cart = $conn->prepare("SELECT * FROM `cart` WHERE user_id = ?");
                 $select_cart->execute([$user_id]);
                 if ($select_cart->rowCount()>0){
                     while($fetch_cart = $select_cart->fetch(PDO::FETCH_ASSOC)){
-                        $select_products = $conn->prepare("SELECT * FROM 'productd' WHERE id=?");
+                        $select_products = $conn->prepare("SELECT * FROM `products` WHERE id=?");
                         $select_products->execute([$fetch_cart['product_id']]);
                         if ($select_products->rowCount()>0){
                             $fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)
@@ -71,17 +69,18 @@ if (isset($_POST['delete item'])) {
                 <form method="post" action="" class="box">
                     <input type="hidden" name="cart_id" value="<?=$fetch_cart['id'];?>">
                     <img src="image/<?=$fetch_products['image'];?>" class="img">
-                    <h3 class="name"><?=$fetch_products['name'];?></h3>
+                    <h3 class="name"><?=$fetch_products['name'];?> </h3>
                     <div class="flex">
                         <p class="price">price $<?=$fetch_products['price'];?>/-</p>
                         <input type="number" name="qty" required min="1" value="<?= $fetch_cart?>" max="99" maxlength="2" class="qty">
                         <button type="submit" name="update_cart" class="bx bxs-edit"></button>
                     </div>
-                    <p class="sub-total">sub total : <span>$<?=$sup_total = ($fetch_cart['qty']* $fetch_cart['price']) ?></span></p>
+                    <p class="sub-total">sub total : <span>$<?=$sup_total = ($fetch_cart['qty'] * $fetch_cart['price']) ?></span></p>
                     <button type="submit" name="delete_item" class="btn" onclick="return confirm('delete this item')">delete</button>
                 </form>
                 <?php
-                            $grand_total+=$sup_total;
+                            $grand_total += $sup_total;
+
                             }else{
                                 echo '<p class"empty">product was not found</p>';
                             }
