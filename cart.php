@@ -10,11 +10,11 @@ if (!$conn) {
 
 if (isset($_POST['update_cart'])){
     $cart_id = $_POST['cart_id'];
-    $cart_id = filter_var($cart_id, FILTER_SANITIZE_NUMBER_INT);
+    $cart_id = filter_var($cart_id);
     $qty = $_POST['qty'];
     $qty = filter_var($qty, FILTER_SANITIZE_NUMBER_INT);
 
-    $update_qty = $conn->prepare("UPDATE 'cart' SET qty = ? WHERE id = ?");
+    $update_qty = $conn->prepare("UPDATE `cart` SET qty = ? WHERE id = ?");
     $update_qty->execute([$qty, $cart_id]);
 
     $success_msg[] = 'cart quantity update successfully';
@@ -70,11 +70,11 @@ if(isset($_POST['delete_item'])){
                 ?>
                 <form method="post" action="" class="box">
                     <input type="hidden" name="cart_id" value="<?=$fetch_cart['id'];?>">
-                    <img src="image/<?=$fetch_products['image'];?>" class="img">
+                    <img src="productimg/<?=$fetch_products['image'];?>" class="img">
                     <h3 class="name"><?=$fetch_products['name'];?> </h3>
                     <div class="flex">
                         <p class="price">price $<?=$fetch_products['price'];?>/-</p>
-                        <input type="number" name="qty" min="1" value="<?= $fetch_cart?>" max="99" maxlength="2" class="qty">
+                        <input type="number" name="qty" min="1" value="<?= $fetch_cart['qty']?>" max="99" maxlength="2" class="qty">
                         <button type="submit" name="update_cart" class="bx bxs-edit"></button>
                     </div>
                     <p class="sub-total">sub total : <span>$<?=$sup_total = ($fetch_cart['qty'] * $fetch_cart['price']) ?></span></p>
@@ -92,6 +92,8 @@ if(isset($_POST['delete_item'])){
                     }
                 ?>
             </div>
+            <a href="checkout.php" class="btn">proceed to checkout</a>
+
         </section>
     <?php include 'footer.php'; ?>
     </div>

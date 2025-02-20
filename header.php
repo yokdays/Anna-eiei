@@ -53,7 +53,6 @@ include 'config/db.php';
                 <i class="bx bx-list-plus" id="menu-btn" style="font-size: 2rem;"></i>
             </div>
             <div class="user-box">
-
                 <p>username : <span><?= $row['firstname']; ?></span></p>
                 <p>Email : <span><?= $row['email']; ?></span></p>
                 <a href="signin.php" class="btn">Login</a>

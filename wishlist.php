@@ -3,6 +3,7 @@ session_start();
 require_once 'config/db.php';
 // Check if database connection is established
 $user_id = $_SESSION['user_login'];
+
 if (!$conn) {
     die("Database connection failed!");
 }
@@ -98,10 +99,10 @@ if (isset($_POST['empty_wishlist'])) {
                         if ($select_products->rowCount() > 0) {
                             $fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)
 
-                ?>
+                            ?>
                             <form method="post" action="" class="box">
                                 <input type="hidden" name="wishlist_id" value="<?= $fetch_wishlist['id']; ?>">
-                                <img src="image/<?= $fetch_products['image']; ?>">
+                                <img src="productimg/<?= $fetch_products['image']; ?>">
                                 <div class="button">
                                     <button type="submit" name="add_to_cart"><i class="bx bx-cart"></i></button>
                                     <a href="view_page.php?pid=<?= $fetch_products['id']; ?>" class="bx bxs-show"></a>
@@ -114,7 +115,7 @@ if (isset($_POST['empty_wishlist'])) {
                                 </div>
                                 <a href="checkout.php?get_id=<?= $fetch_products['id']; ?>" class="btn">Buy Now</a>
                             </form>
-                <?php
+                        <?php
                             $grand_total += $fetch_wishlist['price'];
                         }
                     }

@@ -78,7 +78,7 @@ if (isset($_POST['add_to_cart'])) {
         <section class="products">
             <div class="box-container">
                 <?php
-                $select_products = $conn->prepare("SELECT * FROM products");
+                $select_products = $conn->prepare("SELECT * FROM `products` ");
                 $select_products->execute();
 
                 if ($select_products->rowCount() > 0) {
